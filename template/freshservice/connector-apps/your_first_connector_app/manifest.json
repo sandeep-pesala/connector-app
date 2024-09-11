@@ -1,0 +1,68 @@
+{
+  "platform-version": "2.3",
+  "product": {
+    "freshservice": {
+      "location": {
+        "full_page_app": {
+          "url": "index.html",
+          "icon": "assets/images/icon.svg"
+        },
+        "ticket_sidebar": {
+          "url": "widget.html",
+          "icon": "assets/images/icon.svg"
+        }
+      },
+      "requests": {
+        "fetchToken": {},
+        "initTenantCreation": {},
+        "fetchTenant": {},
+        "listRecipes": {},
+        "listConnections": {},
+        "startRecipe": {},
+        "stopRecipe": {},
+        "updateConnection": {},
+        "configureEndpoints": {},
+        "fetchEndpoints": {},
+        "triggerEndpoint": {}
+      },
+      "functions": {
+        "getJwtToken": {
+          "timeout": 10
+        },
+        "getAllRecipes": {
+          "timeout": 10
+        },
+        "startRecipe": {
+          "timeout": 10
+        },
+        "stopRecipe": {
+          "timeout": 10
+        },
+        "fetchEndpoints": {
+          "timeout": 10
+        },
+        "getFieldsData": {
+          "timeout": 10
+        },
+        "getEndpoints": {
+          "timeout": 10
+        }
+      },
+      "events": {
+        "onAppInstall": {
+          "handler": "onAppInstallCallback"
+        },
+        "onAppUninstall": {
+          "handler": "onAppUninstallCallback"
+        }
+      }
+    }
+  },
+  "engines": {
+    "node": "18.17.1",
+    "fdk": "9.0.7"
+  },
+  "dependencies": {
+    "jsonwebtoken": "8.1.1"
+  }
+}

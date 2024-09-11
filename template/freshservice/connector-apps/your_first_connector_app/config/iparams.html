@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Freshservice-sampleapp</title>
+  <link rel="stylesheet" type="text/css" href="assets/css/iparams.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/css/crayons-min.css"/>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.js"></script>
+</head>
+
+<body>
+  <fw-toast id="toaster"></fw-toast>
+  <fw-tabs id="app-tabs">
+    <div id="configure-tabs">
+      <fw-tab slot="tab" panel="connect-fs" active-tab-index="0" id="connect-fs-tab">1. Connect Freshservice</fw-tab>
+      <fw-tab slot="tab" panel="connect-wk" active-tab-index="1" id="connect-sampleapp-tab" disabled>2. Connect sampleapp</fw-tab>
+    </div>
+    <fw-tab-panel name="connect-fs">
+      <div class="fw-main-container">
+        <div class="content-wrapper">
+          <form id="create-tenant-form">
+            <div class="field fw-mb-12">
+              <label for="fs_domain">Domain URL<span>*</span></label>
+              <input type="text" name="fs_domain" class="fs_domain" id="fs_domain" placeholder="Enter your Freshervice Domain URL" data-bind="product.domain" required/>
+              <p class="hint-text">Example: https://acme.freshservice.com</p>
+            </div>
+            <div class="field">
+              <label for="fs-apikey">API Key<span>*</span></label>
+              <input type="password" name="fs_apikey" class="fs-apikey" id="fs-apikey" placeholder="Enter your API key" required/>
+              <p class="hint-text">Click the profile icon on top right corner of your screen. Go to Profile Settings and access your API key.</p>
+            </div>
+            <div id="create-tenant">
+              <fw-button color="primary" class="button-alignment" id="validate"> Next </fw-button>
+            </div>
+            <div id="tenant-loading" class="hide">
+              <fw-button loading> Loading </fw-button>
+            </div>
+            <p class="loading-hint hide">Please wait while the connection is being established.</p>
+            <p class="connection-error error-info hide">Please enter valid domain and API-key</p>
+            <p class="feature-error error-info hide">sampleapp Connector is part of Connector Apps. To install, kindly upgrade your Freshservice billing plan to Pro or Enterprise.</p>
+          </form>
+        </div>
+      </div>
+    </fw-tab-panel>
+  
+    <fw-tab-panel name="connect-wk">
+      <div class="fw-main-container">
+        <fw-inline-message id="data-center-info" class="hide fw-mb-12" open type="info" closable="false">
+          Note: This App will securely process your data via <a href="https://support.freshservice.com/en/support/solutions/articles/50000006196" rel="noreferrer noopener" target="_blank">Data Centers in the US</a>
+        </fw-inline-message>
+        <div class="iframe-container">
+          <iframe id='created-sampleapp' width="900" src = "" height="900"></iframe>
+        </div>
+      </div>
+      
+      <div id="sampleapp-connection-footer" class="fw-mt-24">
+        <fw-inline-message open type="info" closable="false">
+          <div class="connection-success-info">Click <span class="fw-type-semibold">Install</span> below once the connection is successful.</div>
+        </fw-inline-message>
+      </div>
+    </fw-tab-panel>
+  </fw-tabs>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+  <script src="https://cdn.freshdev.io/assets/app-client@2.js"></script>
+  <script src="assets/iparams.js"></script>
+</body>
+<script>
+  var ls = {
+      isValid: false,
+      isFsValid: false,
+      isSampleAppValid: false,
+      storedConfiguration: {}
+  };
+  var elements = {
+      validateBtn: "#validate",
+      fs_domain: "#fs_domain",
+      fs_apikey: "#fs-apikey"
+  };
+  var authInfo, isConnected = false;
+
+  async function getConfigs(savedConfigs) {
+    var authInfoData = {
+        client_id: savedConfigs.SampleAppUrl,
+        client_secret: savedConfigs.SampleAppApiKey,
+        SampleAppApiKey: savedConfigs.SampleAppApiKey,
+        fs_apikey: savedConfigs.api_key,
+        fs_domain: `https://${savedConfigs.url}`,
+    };
+    authInfo = authInfoData;
+    ls.fs_apikey = savedConfigs.api_key;
+    ls.fs_domain = savedConfigs.url;
+    ls.client_id = savedConfigs.SampleAppUrl;
+    ls.client_secret = savedConfigs.SampleAppApiKey;
+    ls.storedConfiguration = savedConfigs;
+    window.savedConfigs = savedConfigs;
+    appendInputValues();
+  }
+
+  function appendInputValues() {
+      $(elements.fs_domain).val(savedConfigs.url);
+      $(elements.fs_apikey).val(savedConfigs.api_key);
+  }
+
+  function postConfigs() {
+    try {
+        ls.fs_domain = ls.fs_domain.replace("https://", "");
+        storevalue = {};
+        url = ls.fs_domain;
+        api_key =  ls.fs_apikey;
+        SampleAppUrl = ls.client_id;
+        client_secret = ls.client_secret;
+        SampleAppApiKey = ls.client_secret;
+        folder_id = ls.folder_id;
+        customer_id = ls.customer_id;
+        field_url = ls.field_url;
+        base_url = ls.base_url;
+
+        var resultConfig = {
+          url,
+          SampleAppUrl,
+          __meta: {
+              secure: ['SampleAppApiKey', 'api_key'],
+          },
+          api_key,
+          SampleAppApiKey,
+          folder_id,
+          customer_id,
+          field_url,
+          base_url
+        };
+        return resultConfig;
+    } catch (err) {
+        console.error(err);
+    }
+  }
+
+  function serializeFormData(formArray) {
+    return formArray.reduce(function(data, field) {
+      if((field.name === "fs_domain") && field.value.includes('https://')) {
+        data[field.name] = field.value.replace("https://", "");
+      } else {
+        data[field.name] = field.value;
+      }
+      return data;
+    }, {});
+  }
+
+  async function checkValidation(event) {
+      if($("#create-tenant-form").valid()) {
+          var formData = serializeFormData($("#create-tenant-form").serializeArray());
+          event.preventDefault();
+          $('#create-tenant, #tenant-loading').toggleClass('hide');
+          $('.loading-hint').removeClass('hide');
+          $('.connection-error, .feature-error').addClass('hide');
+          authInfo = formData;
+          try {
+            // create tenant
+            await initCreation(authInfo);
+            try {
+              //fetch created tenant
+              var count = 1;
+              var pollingInterval = setInterval(async function () {
+                  count++;
+                  getTenantToken(pollingInterval, authInfo, count);
+              }, 5000);
+              getTenantToken(pollingInterval, authInfo, count);
+            }
+            catch (error) {
+              console.error(error);
+            }
+          } catch(error) {
+            console.error(error);
+            jQuery('.loading-hint, #tenant-loading').addClass('hide');
+            if(error.status == 403) {
+              jQuery('.feature-error, #create-tenant').removeClass('hide');
+            } else {
+              jQuery('.connection-error, #create-tenant').removeClass('hide');
+            }
+          }
+      }
+  }
+
+  async function getTenantToken(pollingInterval, authInfo, count) {
+    try {
+      var tenantInfo = await fetchTenant(authInfo);
+      var response = JSON.parse(tenantInfo.response);
+      var connection = response.connections.find(function(connection){ return connection.provider.includes('sampleapp') }); // this should be the name of the connector app in workato side. 
+      var connectId = connection.id;
+      isConnected = connection.authorization_status == 'success';
+      ls.isFsValid = true;
+      ls.fs_domain = authInfo.fs_domain;
+      ls.fs_apikey = authInfo.fs_apikey;
+      ls.folder_id = response.folder_id;
+      ls.customer_id = response.id;
+      ls.base_url = response.base_url;
+      clearInterval(pollingInterval);
+      notify("Successfully connected with Freshservice");
+      var isEUorUSPod = ['www.workato.com', 'app.eu.workato.com'].some(function(appDomain){ return response.base_url.includes(appDomain) });
+      $('[panel="connect-wk"]').removeAttr('disabled');
+      $('#create-tenant, #tenant-loading').toggleClass('hide');
+      $('#data-center-info').toggleClass('hide', isEUorUSPod);
+      switchTab(1);
+      jQuery('#created-sampleapp').attr('src', response.base_url+'direct_link/embedded/connections/'+connectId+'?workato_dl_token='+response.token);
+      updateFsConnection(response.connections);
+    } catch(error) {
+      if(count >= 5){
+          clearInterval(pollingInterval);
+          jQuery('.loading-hint, #tenant-loading').addClass('hide');
+          jQuery('.connection-error, #create-tenant').removeClass('hide');
+      }
+      console.log(error);
+    }
+  }
+
+  function getFSConnection(connections) {
+    var freshserviceConnection = connections.filter(function(connection){ return connection.provider.includes('freshservice') }); // this should be freshservice.
+      if(freshserviceConnection.length) {
+          var fsConnectId;
+          if(freshserviceConnection.length > 1) {
+              var sortedFsConnection = freshserviceConnection.sort(function(a,b){
+                  return new Date(b.updated_at) - new Date(a.updated_at);
+              });
+              return sortedFsConnection;
+          } else {
+              return freshserviceConnection;
+          }
+      } else {
+        return null; 
+      }
+  }
+
+  function updateFsConnection(connections) {
+      var sortedFsConnection = getFSConnection(connections);
+      if(sortedFsConnection) {
+          var requestData = jQuery.extend({}, authInfo, {connection_id: sortedFsConnection[0].id, customer_id: ls.customer_id});
+          updateConnection(requestData);
+      }
+  }
+
+  async function validate() {
+    try {
+      var connectionInfo = await getConnections(ls);
+      var connections = JSON.parse(connectionInfo.response);
+      var isFsConnected = getFSConnection(connections)[0].authorization_status == 'success';
+      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sampleapp') }).authorization_status == 'success'; // app name should be the workato app name.
+      return isFsConnected && isSampleAppConnected;
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  function notify(message, type = "success") {
+      document.querySelector('#toaster').trigger({
+          type: type,
+          content: message,
+          position: 'top-center'
+      });
+  }
+
+  function switchTab(position) {
+      $("#app-tabs").attr("active-tab-index", position);
+  }
+
+  $(document).ready(function () {
+      app.initialized().then(function (client) {
+          window.client = client;
+          init();
+      });
+  });
+
+  function init() {
+      var {
+          validateBtn,
+          fs_domain
+      } = elements;
+      $(validateBtn).on("click", checkValidation);
+      $(fs_domain).val(window.parent.location ? window.parent.location.hostname : '');
+  }
+</script>
+
+</html>
