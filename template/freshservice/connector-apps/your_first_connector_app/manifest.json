@@ -23,7 +23,10 @@
         "updateConnection": {},
         "configureEndpoints": {},
         "fetchEndpoints": {},
-        "triggerEndpoint": {}
+        "triggerEndpoint": {},
+        "fetchAlertConfig": {},
+        "updateAlertConfig": {},
+        "fetchAgents": {}
       },
       "functions": {
         "getJwtToken": {

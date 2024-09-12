@@ -1,5 +1,7 @@
 // API Methods
 
+const appName = 'SampleApp'
+
 var getJwtToken = function(authInfo) {
   return client.request.invokeTemplate("fetchToken", { context: {
       api_key: authInfo.fs_apikey,
@@ -11,7 +13,7 @@ var initCreation = function(authInfo) {
   return client.request.invokeTemplate("initTenantCreation", { context: {
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
-      app_name: "SampleApp"
+      app_name: appName
   }});
 }
 
@@ -19,7 +21,7 @@ var fetchTenant = function (authInfo) {
   return client.request.invokeTemplate("fetchTenant", { context: {
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
-      app_name: "SampleApp"
+      app_name: appName
   }});
 }
 
@@ -37,5 +39,34 @@ var getConnections = function (authInfo) {
       folder_id: authInfo.folder_id,
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
+  }});
+}
+
+var fetchAlertConfig = function (authInfo) {
+  return client.request.invokeTemplate('fetchAlertConfig', { context: {
+      api_key: authInfo.fs_apikey,
+      domain: authInfo.fs_domain,
+      app_name: appName
+  }});
+}
+
+var updateAlertConfig = function (authInfo, alertConf, alertRecipeConnParams) {
+  return client.request.invokeTemplate('updateAlertConfig', { context: {
+      api_key: authInfo.fs_apikey,
+      domain: authInfo.fs_domain,
+      app_name: appName
+  },
+  body: JSON.stringify({ 
+      ...alertConf,
+      folder_id: authInfo.folder_id, 
+      connections: alertRecipeConnParams
+  }) });
+}
+
+var fetchAgents = function (authInfo, queryStr) {
+  return client.request.invokeTemplate('fetchAgents', { context: {
+      api_key: authInfo.fs_apikey,
+      domain: authInfo.fs_domain,
+      query_params: `query=~[email]:'${queryStr}'`
   }});
 }

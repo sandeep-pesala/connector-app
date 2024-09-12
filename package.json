@@ -26,9 +26,9 @@
   },
   "dependencies": {
     "commander": "9.3.0",
-    "inquirer": "7.3.3",
     "fs-extra": "1.0.0",
-    "replace-in-file": "7.0.2",
-    "lodash": "4.17.21"
+    "inquirer": "7.3.3",
+    "lodash": "4.17.21",
+    "replace-in-file": "7.0.2"
   }
 }

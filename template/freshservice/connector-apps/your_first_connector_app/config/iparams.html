@@ -15,6 +15,7 @@
     <div id="configure-tabs">
       <fw-tab slot="tab" panel="connect-fs" active-tab-index="0" id="connect-fs-tab">1. Connect Freshservice</fw-tab>
       <fw-tab slot="tab" panel="connect-wk" active-tab-index="1" id="connect-sampleapp-tab" disabled>2. Connect sampleapp</fw-tab>
+      <fw-tab slot="tab" panel="alert-conf" active-tab-index="2" id="alert-conf-tab" disabled>3. Alerts</fw-tab>
     </div>
     <fw-tab-panel name="connect-fs">
       <div class="fw-main-container">
@@ -38,7 +39,7 @@
             </div>
             <p class="loading-hint hide">Please wait while the connection is being established.</p>
             <p class="connection-error error-info hide">Please enter valid domain and API-key</p>
-            <p class="feature-error error-info hide">sampleapp Connector is part of Connector Apps. To install, kindly upgrade your Freshservice billing plan to Pro or Enterprise.</p>
+            <p class="feature-error error-info hide"></p>
           </form>
         </div>
       </div>
@@ -47,17 +48,55 @@
     <fw-tab-panel name="connect-wk">
       <div class="fw-main-container">
         <fw-inline-message id="data-center-info" class="hide fw-mb-12" open type="info" closable="false">
-          Note: This App will securely process your data via <a href="https://support.freshservice.com/en/support/solutions/articles/50000006196" rel="noreferrer noopener" target="_blank">Data Centers in the US</a>
+          Note: This App will securely process your data via <a href="https://support.freshservice.com/en/support/solutions/articles/" rel="noreferrer noopener" target="_blank">Data Centers in the US</a>
         </fw-inline-message>
+        <div class="iframe-info fw-mb-16 iframe-info">Please refer to the <a href="https://support.freshservice.com/en/support/solutions/articles/" rel="noopener noreferrer" class="button-link auth-article-link" target="_blank">article</a> for information necessary to authenticate your connection.</div>
         <div class="iframe-container">
           <iframe id='created-sampleapp' width="900" src = "" height="900"></iframe>
         </div>
       </div>
       
       <div id="sampleapp-connection-footer" class="fw-mt-24">
-        <fw-inline-message open type="info" closable="false">
-          <div class="connection-success-info">Click <span class="fw-type-semibold">Install</span> below once the connection is successful.</div>
-        </fw-inline-message>
+        <fw-button color="primary" class="button-alignment" id="sampleapp-next"> Next </fw-button>
+      </div>
+    </fw-tab-panel>
+
+    <fw-tab-panel name="alert-conf">
+      <div class="fw-main-container">
+
+        <fw-spinner size="medium" color="#2C5CC5" id="alert-conf-loader" class="loader-icon"></fw-spinner>
+
+        <div id="alert-conf-content">
+          <div class="alert-pref">
+            <fw-toggle size="medium" class="alerts-toggle" id="alerts-toggle"></fw-toggle>
+          </div>
+          <div class="alert-desc">
+            <div class="header"> Alerts </div>
+            <div class="desc"> Activate Alerts to promptly receive email notifications for any errors detected within the Recipes configured in this app. </div>
+          </div>
+  
+          <div class="field">
+            <fw-select
+              id="email-select"
+              class="email-select"
+              label="Email ID"
+              no-data-text="Type to search.."
+              hint-text="Add multiple email addresses (upto 5)."
+              caret="false"
+              max="5"
+              multiple
+              required
+            >
+            </fw-select>
+          </div>
+        </div>
+
+        <div id="sampleapp-connection-footer" class="fw-mt-24">
+          <fw-inline-message open type="info" closable="false" id="install-info">
+            <div class="connection-success-info">Click <span class="fw-type-semibold">Install</span> below to complete the installation.</div>
+          </fw-inline-message>
+        </div>
+        
       </div>
     </fw-tab-panel>
   </fw-tabs>
@@ -75,11 +114,15 @@
       storedConfiguration: {}
   };
   var elements = {
-      validateBtn: "#validate",
       fs_domain: "#fs_domain",
       fs_apikey: "#fs-apikey"
   };
   var authInfo, isConnected = false;
+  var isAlertConfigFetched = false;
+  var alertPref = false;
+  var notifiedAgents = [];
+  var isAppInstalled = false;
+  var alertRecipeConnParams = [];
 
   async function getConfigs(savedConfigs) {
     var authInfoData = {
@@ -96,12 +139,14 @@
     ls.client_secret = savedConfigs.SampleAppApiKey;
     ls.storedConfiguration = savedConfigs;
     window.savedConfigs = savedConfigs;
+    isAppInstalled = true;
     appendInputValues();
   }
 
   function appendInputValues() {
-      $(elements.fs_domain).val(savedConfigs.url);
-      $(elements.fs_apikey).val(savedConfigs.api_key);
+    $(elements.fs_domain).val(savedConfigs.url);
+    $(elements.fs_apikey).val(savedConfigs.api_key);
+    $('#install-info').hide();
   }
 
   function postConfigs() {
@@ -176,6 +221,7 @@
             jQuery('.loading-hint, #tenant-loading').addClass('hide');
             if(error.status == 403) {
               jQuery('.feature-error, #create-tenant').removeClass('hide');
+              jQuery('.feature-error').text(JSON.parse(error.response).message);
             } else {
               jQuery('.connection-error, #create-tenant').removeClass('hide');
             }
@@ -240,13 +286,64 @@
       }
   }
 
-  async function validate() {
+  async function validateConnections() {
     try {
       var connectionInfo = await getConnections(ls);
       var connections = JSON.parse(connectionInfo.response);
       var isFsConnected = getFSConnection(connections)[0].authorization_status == 'success';
-      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sampleapp') }).authorization_status == 'success'; // app name should be the workato app name.
+      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sampleapp') }).authorization_status == 'success';
+
+      setAlertRecipeConnParams(connections);
       return isFsConnected && isSampleAppConnected;
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  function setAlertRecipeConnParams(connections) {
+    alertRecipeConnParams = connections.filter(c => c.provider == 'rest' || c.provider == 'sampleapp_app').map(c => {
+      return {
+        id: c.id,
+        provider: c.provider
+      }
+    })
+  }
+
+
+
+  async function validate() {
+    try {
+      var isConnectionsValid = await validateConnections();
+      if(!isConnectionsValid) {
+        return false;
+      }
+
+      var isAlertsPageActive = jQuery('#app-tabs').attr('active-tab-index') === '2';
+      if(isAppInstalled && !isAlertsPageActive) {
+        return true;
+      } else if(!isAlertsPageActive) {
+        activateAlertsPage();
+        return false;
+      }
+
+      const emailSelect = document.getElementById('email-select');
+      var notifiedAgentIds = emailSelect.value;
+      if(alertPref && notifiedAgentIds.length === 0 || notifiedAgentIds.length > 5) {
+        emailSelect.state = 'error';
+        emailSelect.errorText = notifiedAgentIds.length === 0 ? 'This field is required.' : 'Can not select more then 5.';
+
+        return false;
+      }
+
+      try {
+        await updateAlertConfig(ls, { pref: alertPref, users: notifiedAgentIds }, alertRecipeConnParams);
+      } catch (alertUpdateError) {
+        notify('Alert configuration update failed.', 'error');
+        console.log(alertUpdateError);
+      }
+
+      return true;
     } catch(error) {
       console.log(error);
       return false;
@@ -272,13 +369,89 @@
       });
   });
 
+
   function init() {
-      var {
-          validateBtn,
-          fs_domain
-      } = elements;
-      $(validateBtn).on("click", checkValidation);
-      $(fs_domain).val(window.parent.location ? window.parent.location.hostname : '');
+      $('#validate').on("click", checkValidation);
+
+      $("#workday-next").on('click', async function() {
+        var isConnectionsValid = await validateConnections();
+        if(isConnectionsValid) {
+          activateAlertsPage();
+        } else {
+          notify('Connect Workday to proceed.', 'error');
+        }
+      });
+  }
+
+  function activateAlertsPage() {
+    $('[panel="alert-conf"]').removeAttr('disabled');
+    switchTab(2);
+    initAlertsHandler();
+  }
+
+  async function initAlertsHandler() {
+    $('#alert-conf-loader').show();
+    $('#alert-conf-content').hide();
+
+    if(!isAlertConfigFetched) {
+      try {
+        const data = await fetchAlertConfig(authInfo);
+        const preference = JSON.parse(data.response);
+        if(preference['pref'] && preference['users']) {
+          alertPref = preference.pref;
+          notifiedAgents = preference.users;
+        }
+        isAlertConfigFetched = true;
+      } catch (err) {
+        notify('Alert configuration fetch failed.', 'error');
+        console.log(err);
+      }
+    }
+
+    loadAlertConfPage();
+  }
+
+  function loadAlertConfPage() {
+    $('#alert-conf-loader').hide();
+    $('#alert-conf-content').show();
+
+    jQuery('#alerts-toggle').prop('checked', alertPref);
+    jQuery('#email-select').toggle(alertPref);
+
+    jQuery('#alerts-toggle').off('fwChange');
+    jQuery('#alerts-toggle').on('fwChange', (event) => {
+      alertPref = event.currentTarget.checked;
+      jQuery('#email-select').toggle(event.currentTarget.checked);
+    })
+
+    const emailSelect = document.getElementById('email-select');
+    emailSelect.addEventListener('fwChange', (event) => {
+      emailSelect.state = 'normal';
+      emailSelect.errorText = '';
+    });
+    if(notifiedAgents.length > 0) {
+      emailSelect.selectedOptions = notifiedAgents.map(agent => {
+        return {
+          value: agent.id,
+          text: `${agent.first_name} ${agent.last_name}`,
+          subText: agent.email
+        }
+      });
+    }
+    emailSelect.search = (value, source) => {
+      return fetchAgents(authInfo, value).then((data) => {
+        return JSON.parse(data.response).agents.map(agent => {
+          return {
+            value: agent.id,
+            text: `${agent.first_name} ${agent.last_name}`,
+            subText: agent.email
+          }
+        });
+      }, (error) => {
+        notify('Agents fetch failed.', 'error');
+        console.log(error)
+      })
+    }
   }
 </script>
 
