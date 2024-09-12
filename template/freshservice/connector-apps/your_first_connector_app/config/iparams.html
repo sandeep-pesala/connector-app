@@ -373,12 +373,12 @@
   function init() {
       $('#validate').on("click", checkValidation);
 
-      $("#workday-next").on('click', async function() {
+      $("#sampleapp-next").on('click', async function() {
         var isConnectionsValid = await validateConnections();
         if(isConnectionsValid) {
           activateAlertsPage();
         } else {
-          notify('Connect Workday to proceed.', 'error');
+          notify('Connect SampleApp to proceed.', 'error');
         }
       });
   }

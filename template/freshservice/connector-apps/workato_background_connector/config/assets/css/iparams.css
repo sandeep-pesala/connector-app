@@ -159,3 +159,36 @@ iframe {
 #data-center-info {
   display: inline-flex !important;
 }
+
+/* Alerts tab */
+
+.alert-pref {
+  position: relative;
+}
+.alert-pref .alerts-toggle {
+  position: absolute;
+  top: 3px;
+}
+.alert-desc {
+  margin-left: 50px;
+}
+.alert-desc .header {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  margin-bottom: 10px;
+}
+.alert-desc .desc {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #475867;
+}
+.email-select {
+  margin-top: 20px;
+  width: 664px;
+}
+.loader-icon {
+  display: flex;
+  justify-content: center;
+}
