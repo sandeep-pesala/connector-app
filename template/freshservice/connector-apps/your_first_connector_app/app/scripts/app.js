@@ -375,18 +375,26 @@ function handleWidgetPreview(isChecked) {
 }
 
 function showFields() {
-  client.db.get('entity_fields').then(
-    function(selectedFields){
-      selectedEntityFields = selectedFields.fields_list;
-      renderEntityFields(entityFields, selectedFields.fields_list);
+  client.request.invoke("getFieldsData", { meta: true }).then(
+    function(fieldData) {
+      let entityFields = fieldData.response;
+      client.db.get('entity_fields').then(
+        function(selectedFields){
+          selectedEntityFields = selectedFields.fields_list;
+          renderEntityFields(entityFields, selectedFields.fields_list);
+        },
+        function(error){
+          if(error.status == '404') {
+            selectedEntityFields = [];
+            renderEntityFields(entityFields, []);
+          } else {
+            handleErr(error);
+          }
+          console.log(error);
+        }
+      );
     },
-    function(error){
-      if(error.status == '404') {
-        selectedEntityFields = [];
-        renderEntityFields(entityFields, []);
-      } else {
-        handleErr(error);
-      }
+    function(error) {
       console.log(error);
     }
   )
