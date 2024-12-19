@@ -1,0 +1,174 @@
+{
+	"fetchToken": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= iparam.url %>",
+			"path": "/api/_/workato/tenant/jwt-token?customer_id=<%= context.customer_id %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(iparam.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"initTenantCreation": {
+		"schema": {
+			"method": "POST",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/_/workato/tenant?app_name=<%= context.app_name %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json",
+				"APP-NAME": "<%= context.app_name %>"
+			}
+		}
+	},
+	"fetchTenant": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/_/workato/tenant?app_name=<%= context.app_name %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json",
+				"APP-NAME": "<%= context.app_name %>"
+			}
+		}
+	},
+	"updateConnection": {
+		"schema": {
+			"method": "PUT",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/_/workato/tenant/connections/<%= context.connection_id %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"listRecipes": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= iparam.url %>",
+			"path": "/api/_/workato/tenant/recipes?folder_id=<%= context.folder_id %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(iparam.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"listConnections": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/_/workato/tenant/connections?folder_id=<%= context.folder_id %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"startRecipe": {
+		"schema": {
+			"method": "PUT",
+			"protocol": "https",
+			"host": "<%= iparam.url %>",
+			"path": "/api/_/workato/tenant/recipes/<%= context.recipe_id %>/start",
+			"headers": {
+				"Authorization": "Basic <%= encode(iparam.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"stopRecipe": {
+		"schema": {
+			"method": "PUT",
+			"protocol": "https",
+			"host": "<%= iparam.url %>",
+			"path": "/api/_/workato/tenant/recipes/<%= context.recipe_id %>/stop",
+			"headers": {
+				"Authorization": "Basic <%= encode(iparam.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"configureEndpoints": {
+		"schema": {
+			"method": "PUT",
+			"protocol": "https",
+			"host": "<%= iparam.url %>",
+			"path": "/api/_/workato/tenant/configure-api-endpoints",
+			"headers": {
+				"Authorization": "Basic <%= encode(iparam.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"fetchEndpoints": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= iparam.url %>",
+			"path": "/api/_/workato/tenant/api-endpoints?customer_id=<%= iparam.customer_id %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(iparam.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"triggerEndpoint": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "apim.workato.com",
+			"path": "<%= context.path %>?<%= context.query_params %>",
+			"headers": {
+				"API-Token": "<%= context.field_secret %>",
+				"Content-Type": "application/json"
+			}
+		}
+	},
+	"fetchAlertConfig": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/_/workato/tenant/alerts",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json",
+				"APP-NAME": "<%= context.app_name %>"
+			}
+		}
+	},
+	"updateAlertConfig": {
+		"schema": {
+			"method": "PUT",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/_/workato/tenant/alerts",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json",
+				"APP-NAME": "<%= context.app_name %>"
+			}
+		}
+	},
+	"fetchAgents": {
+		"schema": {
+			"method": "GET",
+			"protocol": "https",
+			"host": "<%= context.domain %>",
+			"path": "/api/v2/agents?<%= context.query_params %>",
+			"headers": {
+				"Authorization": "Basic <%= encode(context.api_key) %>",
+				"Content-Type": "application/json"
+			}
+		}
+	}
+}

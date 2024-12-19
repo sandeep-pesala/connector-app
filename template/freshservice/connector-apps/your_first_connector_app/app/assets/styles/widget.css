@@ -1,0 +1,93 @@
+.app-body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Helvetica Neue",Arial,sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.hide {
+  display: none !important;
+}
+
+#widget-content {
+  border-top: 1px solid #EBEFF3;
+  padding-top: 12px;
+}
+
+.fields-header {
+  color: #12344D;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 26px;
+  margin-bottom: 4px;
+}
+
+#fields-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#fields-list li {
+  display: flex;
+}
+
+#fields-list .label {
+  color: #475867;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 26px;
+  width: 50%;
+  display: flex;
+}
+
+#fields-list .colon {
+  margin: 0 12px 0 auto;
+}
+
+#fields-list .value {
+  color: #12344D;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 26px;
+  width: 50%;
+}
+
+.widget-error img {
+  display: block;
+  margin: 0 auto;
+}
+
+.widget-error p {
+  color: #12344D;
+  text-align: center;
+  font-size: 14px;
+}
+
+#details-loader {
+  display: flex;
+  margin-top: 24px;
+  justify-content: center;
+}
+
+#requester-not-found {
+  img {
+      width: 60px;
+      height: 60px;
+  }
+}
+
+#widget-footer {
+  position: fixed;
+  bottom: 0;
+  border-top: 1px solid #EBEFF3;
+  width: calc(100% - 50px);
+  padding-top: 12px;
+}
+
+.widget-content-height {
+  overflow: scroll;
+  height: calc(100% - 25px);
+}

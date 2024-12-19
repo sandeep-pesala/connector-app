@@ -1,0 +1,239 @@
+<html>
+  <head>
+    <script src="https://cdn.freshdev.io/assets/app-client@2.js"></script>
+    <link rel="stylesheet" type="text/css" href="assets/styles/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/css/crayons-min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"></script>
+  </head>
+
+  <body class="app-body">
+    <fw-toast id="toaster"></fw-toast>
+    <section id="tab-section">
+      <fw-tabs id="tabs-container">
+        <div id="tab-list">
+          <fw-tab slot="tab" panel="overview">Overview</fw-tab>
+          <fw-tab slot="tab" panel="workflows">Recipes</fw-tab>
+          <fw-tab slot="tab" panel="settings">Widget Settings</fw-tab>
+        </div>
+
+        <fw-tab-panel name="overview">
+          <fw-spinner size="medium" color="#2C5CC5" id="dashboard-loader" class="loader-icon"></fw-spinner>
+          <iframe id='dashboard-iframe' width="1000" height="900" class="fw-mt-24"></iframe>
+        </fw-tab-panel>
+
+        <fw-tab-panel name="workflows">
+          
+          <div id="tenant-list-container" class="fw-mt-24">
+            <div class="workflow-info sibling-container hide" id="recipe-table-info">
+              <div>Set up recipes and sync your data in real time between Freshservice and sampleapp.</div>
+              <div>Preview, edit, and activate the recipes below.</div>
+            </div>
+            <div id="spinner-loader" class="sibling-container loader-with-info fw-mt-24">
+              <fw-spinner size="medium" color="#2C5CC5"  class="loader-icon fw-mb-8"></fw-spinner>
+              <p>Loading Recipes...</p>
+              <p>Please wait while we prepare this page for you to activate workflows.</p>
+            </div>
+            <div id="list-table-container" class="hide">
+              <table id="tenant-list-table">
+                <thead>
+                  <tr role="row">
+                    <th class="">Name</th>
+                    <th class="">Description</th>
+                    <th class=""></th>
+                  </tr>
+                </thead>
+                <tbody id="tenant-list-body">
+                </tbody>
+              </table>
+            </div>
+            
+            <div id="tenant-view" class="sibling-container hide">
+              <div class="header-btns">
+                <button onclick="backToTable('view')" class="back-btn"> 
+                  <fw-icon name="chevron-left" size="12" class="fw-mr-8" color="#2C5CC5"></fw-icon>
+                  <span class="recipe-name"></span>
+                </button>
+              </div>
+              <p class="header-info fw-mt-16 fw-mb-16">Preview</p>
+              <iframe id='view-iframe' width="1000" height="900"></iframe>
+            </div>
+            
+            <div id="tenant-edit" class="sibling-container hide">
+              <div class="header-btns">
+                <button onclick="backToTable('edit')" class="back-btn"> 
+                  <fw-icon name="chevron-left" size="12" class="fw-mr-8" color="#2C5CC5"></fw-icon>
+                  <span class="recipe-name"></span>
+                </button>
+              </div>
+              <p class="header-info fw-mt-16 fw-mb-16">Edit</p>
+              <iframe id='edit-iframe' width="1000" height="900"></iframe>
+            </div>
+            
+            <div id="tenant-log" class="sibling-container hide">
+              <div class="header-btns">
+                <button onclick="backToTable('log')" class="back-btn"> 
+                  <fw-icon name="chevron-left" size="12" class="fw-mr-8" color="#2C5CC5"></fw-icon>
+                  <span class="recipe-name"></span>
+                </button>
+              </div>
+              <p class="header-info fw-mt-16 fw-mb-16">Logs</p>
+              <iframe id='log-iframe' width="1000" height="900"></iframe>
+            </div>
+
+            <div id="no-workflows" class="sibling-container hide">
+                <img src="./assets/images/empty-state.svg"/>
+                <p>There is no recipes linked</p>
+            </div>
+
+            <div id="not-found" class="sibling-container hide">
+              <img src="./assets/images/not-found.svg"/>
+              <p>Please <a class="link" href=".">refresh</a> this page since the connection has been lost.</p>
+            </div>
+
+            <div id="no-permission" class="sibling-container hide">
+              <img src="./assets/images/no-permission.svg"/>
+              <p>You do not have permission to view this page, please contact your administrator to view this page.</p>
+            </div>
+          </div>
+
+        </fw-tab-panel>
+
+        <fw-tab-panel name="settings">
+          <div id="settings-container">
+            <div class="fields-container">
+              <div class="warning-info-banner fw-mb-20">
+                <div class="warning-icon">
+                  <fw-icon name="warning" color="#D7461F" size=16 ></fw-icon>
+                </div>
+                <div class="warning-info fw-ml-8 fw-pl-8">Fields selected here will be visible to all agents on the Ticket Details page across Workspaces in the sampleapp widget. Please use discretion to exclude sensitive information from being displayed to agents.</div>
+              </div>
+              <div class="widget-toggle-container hide">
+                <div class="widget-toggle-btn disabled">
+                  <fw-toggle size="medium"></fw-toggle>
+                </div>
+                <div class="widget-info">
+                  <div class="widget-title">sampleapp widget</div>
+                  <div class="widget-desc fw-color-smoke-700">Select fields from the list below to display in the widget. Tasks will be utilized each time to fetch data from sampleapp for display within the widget.</div>
+                </div>
+              </div>
+              <div id="employee-fields-container">
+                <ul id="entity-fields-list">
+                  <fw-spinner size="medium" id="fields-loader"></fw-spinner>
+                </ul>
+              </div>
+              <div id="fields-footer">
+                <div id="footer-btns">
+                  <fw-button color="secondary" id="reset-fields"> Reset </fw-button>
+                  <fw-button color="primary" id="save-fields"> Save </fw-button>
+                </div>
+              </div>
+            </div>
+            <div class="fields-display-area hide">
+              <div class="disply-header fw-type-base fw-type-semibold fw-mb-16">Sample illustration of sampleapp widget</div>
+              <div class="app-widget" id="widget-shown">
+                <!-- <img src="./assets/images/fetched_data.svg" alt="fetched data" > Add the SVG file to show the sample fetched data in the widget in the app placeholder. -->
+                <div class="info-pointer">
+                  <div class="pointer-arrow-up"></div>
+                  <div class="pointer-arrow-line"></div>
+                </div>
+                <div class="widget-img-info fw-type-semibold">
+                  Fetched data
+                </div>
+              </div>
+              <div class="app-widget hide" id="widget-hidden">
+                <div class="info-pointer">
+                  <div class="pointer-arrow-up"></div>
+                  <div class="pointer-arrow-line"></div>
+                </div>
+                <div class="widget-img-info fw-type-semibold">
+                  There is no sampleapp widget available at this time.
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="hide" id="widget-remove-confirm-modal" data-bs-toggle="modal" data-bs-target="#widget-modal"></button>
+        </fw-tab-panel>
+      </fw-tabs>
+      <div id="help-info">
+        <button type="button" class="button-link" id="help-modal-trigger" data-bs-toggle="modal" data-bs-target="#quick-help-modal">
+          How to get started?
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="quick-help-modal" tabindex="-1" aria-labelledby="quick-help-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="quick-help-modal-label">Configure sampleapp Connector</h5>
+            <fw-icon name="cross" size="12" data-bs-dismiss="modal"></fw-icon>
+          </div>
+          <div class="modal-body">
+            <div id="modal-content">
+              <ul class="p-0 m-0">
+                <li>
+                  <div class="content-header">
+                    <div class="fw-mr-8">1</div>
+                    <p>Enable pre-built recipes</p>
+                  </div>
+                  <div class="content-body">
+                    <!-- <img src="./assets/images/wf-preview.svg" alt="workflows"/> Add the svg file for the workflow preview in the app settings page. -->
+                    <p class="sec-info">Use pre-built recipes to activate workflows between sampleapp and Freshservice.</p>
+                  </div>
+                </li>
+                <li>
+                  <div class="content-header">
+                    <div class="fw-mr-8">2</div>
+                    <p>sampleapp widget settings</p>
+                  </div>
+                  <div class="content-body">
+                    <img src="./assets/images/settings-preview.svg" alt="settings"/>
+                    <p class="sec-info">Choose fields from sampleapp you want to display within the sampleapp widget on the ticket details page.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="modal-footer quick-help-modal-footer">
+            <div>
+              <a href="https://support.freshservice.com/en/support/solutions/articles/50000006196" class="button-link" rel="noopener noreferrer" target="_blank">View Detailed Guide</a>
+            </div>
+            <fw-button color="primary" data-bs-dismiss="modal">Got it</fw-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="widget-modal" tabindex="-1" aria-labelledby="widget-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="widget-modal-label">Are you sure you want to disable this widget?</h5>
+          </div>
+          <div class="modal-body">
+            <div id="modal-content">
+              By clicking disable, requester information from sampleapp will not be displayed in the widget on the ticket details page.
+            </div>
+          </div>
+          <div class="modal-footer widget-footer">
+            <fw-button color="secondary" data-bs-dismiss="modal" class="fw-mr-12" id="turn-off-widget">Disable</fw-button>
+            <fw-button color="primary" data-bs-dismiss="modal">Cancel</fw-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="scripts/app.js"></script>
+  </body>
+
+</html>

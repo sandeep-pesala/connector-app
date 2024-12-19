@@ -1,0 +1,34 @@
+{
+  "name": "fs-connector",
+  "version": "1.0.2",
+  "description": "FS Connector Development Kit",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node postinstall.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sandeep-pesala/connector-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sandeep-pesala/connector-app/issues"
+  },
+  "homepage": "https://github.com/sandeep-pesala/connector-app#readme",
+  "bin": {
+    "fs-connector": "./index.js"
+  },
+  "dependencies": {
+    "commander": "9.3.0",
+    "fs-extra": "1.0.0",
+    "inquirer": "7.3.3",
+    "lodash": "4.17.21",
+    "replace-in-file": "7.0.2"
+  }
+}
