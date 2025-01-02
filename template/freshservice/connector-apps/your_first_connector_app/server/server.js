@@ -1,5 +1,12 @@
-var jwt = require('jsonwebtoken');
-var secretKey = 'dummy';
+const jwt = require('jsonwebtoken');
+const secretKey = 'dummy';
+
+const workatoDomainMapping = {
+  AUS: 'apim.au.workato.com',
+  EUC: 'apim.eu.workato.com'
+};
+
+const defaultWorkatoDomain = 'apim.workato.com';
 
 function encodeData(data) {
   return jwt.sign(data, secretKey);
@@ -12,7 +19,7 @@ function decodeData(data) {
 exports = {
   getJwtToken: async function(options) {
     try {
-      var response = await $request.invokeTemplate("fetchToken", { context: {
+      const response = await $request.invokeTemplate("fetchToken", { context: {
         customer_id: options.customer_id
       }});
       renderData(null,  response);
@@ -22,7 +29,7 @@ exports = {
   },
   getAllRecipes: async function(options) {
     try {
-      var response = await $request.invokeTemplate("listRecipes", { context: {
+      const response = await $request.invokeTemplate("listRecipes", { context: {
         folder_id: options.folder_id
       }});
       renderData(null,  response);
@@ -32,7 +39,7 @@ exports = {
   },
   startRecipe: async function(options) {
     try {
-      var response = await $request.invokeTemplate("startRecipe", { context: {
+      const response = await $request.invokeTemplate("startRecipe", { context: {
         recipe_id: options.id
       }});
       renderData(null,  response);
@@ -42,7 +49,7 @@ exports = {
   },
   stopRecipe: async function(options) {
     try {
-      var response = await $request.invokeTemplate("stopRecipe", { context: {
+      const response = await $request.invokeTemplate("stopRecipe", { context: {
         recipe_id: options.id
       }});
       renderData(null,  response);
@@ -52,10 +59,10 @@ exports = {
   },
   fetchEndpoints: async function() {
     try {
-      var response = await $request.invokeTemplate("fetchEndpoints");
-      var apiDetails = JSON.parse(response.response);
-      var data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sampleapp_data_fetch') }).base_path;
-      var field_secret = apiDetails.profile[0].secret;
+      const response = await $request.invokeTemplate("fetchEndpoints");
+      const apiDetails = JSON.parse(response.response);
+      const data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sampleapp_data_fetch') }).base_path;
+      const field_secret = apiDetails.profile[0].secret;
       await $db.set('endpointDetails', {'data_fetch_url': data_fetch_url, 'field_secret': encodeData({ secret: field_secret })});
       renderData(null,  response);
     } catch (err) {
@@ -64,7 +71,7 @@ exports = {
   },
   getEndpoints: async function() {
     try {
-      var endpoints = await $db.get('endpointDetails');
+      const endpoints = await $db.get('endpointDetails');
       renderData(null,  { meta_fields_url: endpoints.meta_fields_url });
     } catch(err) {
       renderData(err);
@@ -72,22 +79,30 @@ exports = {
   },
   getFieldsData: async function(options) {
     try {
-      var endpoints = await $db.get('endpointDetails');
-      var requestData = {
+      const endpoints = await $db.get('endpointDetails');
+      const podDetails = await $db.get('podDetails');
+      const baseUrl = workatoDomainMapping[podDetails.region] || defaultWorkatoDomain;
+      const requestData = {
         path: endpoints.data_fetch_url,
         field_secret: decodeData(endpoints.field_secret).secret,
+        base_url: baseUrl
       }
       if(options.user_id) {
         Object.assign(requestData, {query_params: 'user_id=' + options.user_id + '&email='+ options.email});
       }
-      var fieldsData = await $request.invokeTemplate("triggerEndpoint",{ context: requestData});
-      var userData = JSON.parse(fieldsData.response);
-      var entityFields = await $db.get('entity_fields');
-      var response = {};
-      entityFields.fields_list.forEach(function(field){
+      const fieldsData = await $request.invokeTemplate("triggerEndpoint",{ context: requestData});
+      const userData = JSON.parse(fieldsData.response);
+      let entityFields = {};
+      try {
+        entityFields = await $db.get('entity_fields');
+      } catch (error) {
+        console.error("Error fetching entity fields:", error);
+      }
+      const response = {};
+      entityFields.fields_list?.forEach(function(field){
         response[field[1]] = userData[field[0]] || '';
       });
-      renderData(null,  response);
+      renderData(null, response);
     } catch (err) {
       renderData(err);
     }
@@ -99,6 +114,7 @@ exports = {
         context: {},
         body: JSON.stringify({folder_id: args.iparams.folder_id})
       });
+      $db.set('podDetails', { region: args.region });
       console.log('after configureEndpoints called');
     } catch (err) {
       console.log('onAppInstallCallback Error');
@@ -110,7 +126,7 @@ exports = {
     $db.get("recipeIds").then (
       function(data) {
         if(data.recipe_ids.length) {
-          var apis = []
+          const apis = []
           data.recipe_ids.forEach(function(recipeId){
             apis.push(
               $request.invokeTemplate("stopRecipe", { context: {

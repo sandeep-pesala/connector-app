@@ -1,7 +1,7 @@
 document.onreadystatechange = function() {
   if (document.readyState === 'interactive') renderApp();
   function renderApp() {
-    var onInit = app.initialized();
+    const onInit = app.initialized();
     onInit
       .then(function getClient(_client) {
         window.client = _client;
@@ -19,7 +19,7 @@ function handleErr(err = 'None') {
   handleWidgetError();
 }
 
-var appIparams;
+let appIparams;
 
 function onAppActivated() {
   client.iparams.get().then(function(data){
@@ -56,11 +56,15 @@ client.data.get("requester").then (
       client.request.invoke('getFieldsData', { user_id: requester_data.requester.id, email: requester_data.requester.email })
       .then(
         function(resData) {
-          var entityFields = resData.response;
-          renderEntityFields(entityFields);
+          const entityFields = resData.response;
+          if (Object.entries(entityFields).length > 0) {
+            renderEntityFields(entityFields);
+          } else {
+            handleFieldsNotConfigured();
+          }
         },
         function(error){
-          if(error.status == 404) {
+          if(error.status === 404) {
             jQuery('#requester-not-found').removeClass('hide');
             handleWidgetError();
           } else {
@@ -90,4 +94,9 @@ jQuery('#widget-content').addClass('widget-content-height');
 function handleWidgetError() {
 jQuery('#fields-info-container, #details-loader').addClass('hide');
 jQuery('#widget-content').removeClass('widget-content-height');
+}
+
+function handleFieldsNotConfigured() {
+  jQuery('#fields-not-configured').removeClass('hide');
+  jQuery('#details-loader').addClass('hide');
 }
