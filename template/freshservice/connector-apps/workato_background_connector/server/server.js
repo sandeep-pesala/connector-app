@@ -75,7 +75,7 @@ exports = {
         field_secret: decodeData(endpoints.field_secret).secret,
         base_url: baseUrl
       }
-      if(options.user_id) { // you can change this accordingly, this is just a sample. 
+      if(options.user_id) {
         Object.assign(requestData, {query_params: 'user_id=' + options.user_id + '&email='+ options.email});
       }
       const fieldsData = await $request.invokeTemplate("triggerEndpoint",{ context: requestData});

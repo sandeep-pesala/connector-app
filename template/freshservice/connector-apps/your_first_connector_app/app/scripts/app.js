@@ -2,7 +2,7 @@ document.onreadystatechange = function() {
   if (document.readyState === 'interactive') renderApp();
 
   function renderApp() {
-    var onInit = app.initialized();
+    const onInit = app.initialized();
 
     onInit
       .then(function getClient(_client) {
@@ -13,7 +13,7 @@ document.onreadystatechange = function() {
   }
 };
 
-var appIparams, selectedEntityFields;
+let appIparams, selectedEntityFields;
 
 async function onAppActivated() {
   // off event so that it won't be attached multiple times during multiple pjax navigation
@@ -25,7 +25,7 @@ async function onAppActivated() {
     appIparams = await client.iparams.get();
     client.db.get('endpointDetails').then(
       function(endpoints){
-        if(endpoints.meta_fields_url == null) {
+        if(endpoints.meta_fields_url === null) {
           storeEndpoints();
         }
       },
@@ -55,7 +55,7 @@ function renderDashboard() {
 
 function handleErr(err = 'None') {
   console.log(`Error occured. Details:`, err);
-  var message;
+  let message;
   try {
     message = err.message ? JSON.parse(err.message).error : JSON.parse(err.response).message;
     if(!message) throw err;
@@ -96,10 +96,10 @@ function handleRecipesStateChange($targerBtn, showStartOrStop, btnData) {
 function handleTimoutCase($targerBtn, showStartOrStop, btnData) {
   client.request.invoke("getAllRecipes", appIparams).then(
     function(data) {
-      var recipeList = [];
+      let recipeList = [];
       recipeList = JSON.parse(data.response.response);
-      var recipeData = recipeList.find(function(recipe){ return btnData.id == recipe.id; });
-      if((showStartOrStop == 'start' && !recipeData.running) || (showStartOrStop == 'stop' && recipeData.running)) {
+      const recipeData = recipeList.find(function(recipe){ return btnData.id === recipe.id; });
+      if((showStartOrStop === 'start' && !recipeData.running) || (showStartOrStop === 'stop' && recipeData.running)) {
         handleRecipesStateChange($targerBtn, showStartOrStop, btnData);
       } else {
         $targerBtn.removeAttr('disabled');
@@ -119,16 +119,16 @@ function bindEvents() {
 
   jQuery('#tabs-container').on( "fwChange.sampleApp", function( event ) {
     if(event.detail.tabIndex === 1) {
-      var $tableContainer = jQuery('#list-table-container');
+      const $tableContainer = jQuery('#list-table-container');
       if($tableContainer.hasClass('visited')) return;
       $tableContainer.addClass('visited');
       jQuery('#spinner-loader').removeClass('hide');
       client.request.invoke("getAllRecipes", appIparams).then(
         function(data) {
-          var recipeList = [];
+          let recipeList = [];
           recipeList = JSON.parse(data.response.response);
           if(recipeList && recipeList.length) {
-            var recipeIds = recipeList.map(function(recipe) {return recipe.id });
+            const recipeIds = recipeList.map(function(recipe) {return recipe.id });
 
             // save recipe to stop while app uninstall
             client.db.set('recipeIds', {'recipe_ids': recipeIds});
@@ -161,7 +161,7 @@ function bindEvents() {
         }
       )
     } else if(event.detail.tabIndex === 2) {
-      var $widgetSettingsLoaded = jQuery('#settings-container');
+      const $widgetSettingsLoaded = jQuery('#settings-container');
       if($widgetSettingsLoaded.hasClass('visited')) return;
       $widgetSettingsLoaded.addClass('visited');
       setWidgetToggle();
@@ -170,10 +170,10 @@ function bindEvents() {
   });
 
   jQuery(document).on('click.sampleapp', '.start-recipe, .stop-recipe', function(e){
-    var btnData = e.target.dataset;
-    var showStartOrStop = btnData.key == 'start' ? 'stop' : 'start';
-    var requestData = jQuery.extend({}, appIparams, {id: btnData.id});
-    var $targerBtn = jQuery(e.target);
+    const btnData = e.target.dataset;
+    const showStartOrStop = btnData.key === 'start' ? 'stop' : 'start';
+    const requestData = jQuery.extend({}, appIparams, {id: btnData.id});
+    const $targerBtn = jQuery(e.target);
     $targerBtn.attr('disabled', 'disabled');
     client.request.invoke(btnData.key+"Recipe", requestData).then(
       function() {
@@ -214,9 +214,9 @@ function bindEvents() {
   });
 
   jQuery(document).on('click.sampleapp', '#save-fields', function() {
-    var selectedFields = [];
+    const selectedFields = [];
     jQuery('#entity-fields-list').find('fw-checkbox[checked]').each(function(){
-      var selectedField = $(this).data('value');
+      const selectedField = $(this).data('value');
       selectedFields.push(selectedField);
     });
     client.db.set('entity_fields', {'fields_list': selectedFields}).then (
@@ -249,11 +249,11 @@ function bindEvents() {
   });
 
   jQuery(document).on('click.sampleapp', '#reset-fields', function() {
-    var fields = jQuery("#entity-fields-list fw-checkbox");
+    const fields = jQuery("#entity-fields-list fw-checkbox");
     fields.each(function(index, chkBox) {
-        var $field = jQuery(chkBox);
-        var fieldValue = jQuery(chkBox).data('value');
-        var isPrevStateIsChecked = selectedEntityFields.find(function(sField){ return sField[0] === fieldValue[0]});
+        const $field = jQuery(chkBox);
+        const fieldValue = jQuery(chkBox).data('value');
+        const isPrevStateIsChecked = selectedEntityFields.find(function(sField){ return sField[0] === fieldValue[0]});
         if(isPrevStateIsChecked) {
           !$field[0].checked && $field.attr('checked', 'checked');
         } else {
@@ -275,7 +275,7 @@ function saveWidgetData(enableOrDisable){
 }
 
 function setKebabMenu(i, recipe, showLog) {
-  var standardDataSource = [
+  const standardDataSource = [
     {
       value: {
         type: 'edit',
@@ -295,7 +295,7 @@ function setKebabMenu(i, recipe, showLog) {
       text: 'View log',
     });
   }
-  var standardVariant = jQuery('#standard-kebab-menu-'+i);
+  const standardVariant = jQuery('#standard-kebab-menu-'+i);
   standardVariant[0].options = standardDataSource;
   standardVariant.off('fwSelect.sampleapp').on('fwSelect.sampleapp', function(e) {
     handleTenantCrud(e.detail.value);
@@ -303,7 +303,7 @@ function setKebabMenu(i, recipe, showLog) {
 }
 
 function handleTenantCrud(data) {
-  var $tenant = jQuery('#tenant-'+data.type);
+  const $tenant = jQuery('#tenant-'+data.type);
   $tenant.find('.recipe-name').text(data.name);
   switch(data.type) {
     case 'view':
@@ -322,11 +322,11 @@ function handleTenantCrud(data) {
 }
 
 function fetchToken(data) {
-  var $appIframe = jQuery('#'+data.type+'-iframe');
+  const $appIframe = jQuery('#'+data.type+'-iframe');
   $appIframe.attr('src', '');
   client.request.invoke('getJwtToken', appIparams).then(
     function(resData) {
-      var response = JSON.parse(resData.response.response);
+      const response = JSON.parse(resData.response.response);
       switch(data.type) {
         case 'view':
           $appIframe.attr('src', `${appIparams.base_url}direct_link?workato_dl_path=%2Frecipes%2F${data.id}%23recipe&workato_dl_token=${response.token}`);
@@ -377,14 +377,14 @@ function handleWidgetPreview(isChecked) {
 function showFields() {
   client.request.invoke("getFieldsData", { meta: true }).then(
     function(fieldData) {
-      let entityFields = fieldData.response;
+      const entityFields = fieldData.response;
       client.db.get('entity_fields').then(
         function(selectedFields){
           selectedEntityFields = selectedFields.fields_list;
           renderEntityFields(entityFields, selectedFields.fields_list);
         },
         function(error){
-          if(error.status == '404') {
+          if(error.status === 404) {
             selectedEntityFields = [];
             renderEntityFields(entityFields, []);
           } else {
@@ -403,7 +403,7 @@ function showFields() {
 // this will render the data in settings page, this needs to be changes if there is any change in index.html
 function renderEntityFields(fieldsList, selectedFields) {
 
-  var $fieldsListContainer = jQuery('#entity-fields-list');
+  const $fieldsListContainer = jQuery('#entity-fields-list');
   $fieldsListContainer.empty();
 
 
@@ -416,6 +416,7 @@ function renderEntityFields(fieldsList, selectedFields) {
 }
 
 function isFieldChecked(fields, field) {
+  const defaultEnabledFields = [];
   if(fields && fields.length) {
     return fields.find(function(selectedField) { return selectedField[0] === field[0]; });
   } else {
