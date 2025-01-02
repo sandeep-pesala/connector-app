@@ -91,7 +91,7 @@ exports = {
     }
   },
 
-  onAppInstallCallback: async function(args) {
+  onAppInstallCallback: function(args) {
     try {
       $db.set('podDetails', { region: args.region });
     } catch (err) {
