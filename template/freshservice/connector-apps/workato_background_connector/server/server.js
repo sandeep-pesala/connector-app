@@ -1,6 +1,13 @@
 const jwt = require('jsonwebtoken');
 const secretKey = 'dummy';
 
+const workatoDomainMapping = {
+  AUS: 'apim.au.workato.com',
+  EUC: 'apim.eu.workato.com'
+};
+
+const defaultWorkatoDomain = 'apim.workato.com';
+
 function encodeData(data) {
   return jwt.sign(data, secretKey);
 }
@@ -61,11 +68,14 @@ exports = {
   getFieldsData: async function(options) {
     try {
       const endpoints = await $db.get('endpointDetails');
+      const podDetails = await $db.get('podDetails');
+      const baseUrl = workatoDomainMapping[podDetails.region] || defaultWorkatoDomain;
       const requestData = {
         path: endpoints.data_fetch_url,
         field_secret: decodeData(endpoints.field_secret).secret,
+        base_url: baseUrl
       }
-      if(options.user_id) {
+      if(options.user_id) { // you can change this accordingly, this is just a sample. 
         Object.assign(requestData, {query_params: 'user_id=' + options.user_id + '&email='+ options.email});
       }
       const fieldsData = await $request.invokeTemplate("triggerEndpoint",{ context: requestData});
@@ -79,6 +89,16 @@ exports = {
     } catch (err) {
       renderData(err);
     }
+  },
+
+  onAppInstallCallback: async function(args) {
+    try {
+      $db.set('podDetails', { region: args.region });
+    } catch (err) {
+      console.log('onAppInstallCallback Error');
+      console.log(err);
+    }
+    renderData();
   },
 
   onAppUninstallCallback: function() {
