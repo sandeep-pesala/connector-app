@@ -48,8 +48,10 @@
     <fw-tab-panel name="connect-wk">
       <div class="fw-main-container">
         <fw-inline-message id="data-center-info" class="hide fw-mb-12" open type="info" closable="false">
+          <!-- TODO: Update the article -->
           Note: This App will securely process your data via <a href="https://support.freshservice.com/en/support/solutions/articles/" rel="noreferrer noopener" target="_blank">Data Centers in the US</a>
         </fw-inline-message>
+        <!-- TODO: Update the article -->
         <div class="iframe-info fw-mb-16 iframe-info">Please refer to the <a href="https://support.freshservice.com/en/support/solutions/articles/" rel="noopener noreferrer" class="button-link auth-article-link" target="_blank">article</a> for information necessary to authenticate your connection.</div>
         <div class="iframe-container">
           <iframe id='created-sampleapp' width="900" src = "" height="900"></iframe>
@@ -233,7 +235,7 @@
     try {
       var tenantInfo = await fetchTenant(authInfo);
       var response = JSON.parse(tenantInfo.response);
-      var connection = response.connections.find(function(connection){ return connection.provider.includes('sampleapp') }); // this should be the name of the connector app in workato side. 
+      var connection = response.connections.find(function(connection){ return connection.provider.includes('sampleapp') }); // TODO: this should be the name of the connector app in workato side.
       var connectId = connection.id;
       isConnected = connection.authorization_status == 'success';
       ls.isFsValid = true;
@@ -291,7 +293,7 @@
       var connectionInfo = await getConnections(ls);
       var connections = JSON.parse(connectionInfo.response);
       var isFsConnected = getFSConnection(connections)[0].authorization_status == 'success';
-      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sampleapp') }).authorization_status == 'success';
+      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sampleapp') }).authorization_status == 'success'; // TODO: this should be the name of the connector app in workato side.
 
       setAlertRecipeConnParams(connections);
       return isFsConnected && isSampleAppConnected;
