@@ -4,7 +4,7 @@ Congratulations on creating your first Workato App! Feel free to replace this te
 
 ### TODOS:
 1. Update third party connector name:
-    config/iparams.html: Modify the third-party connector name to reflect the correct name as per Workato.
+    config/iparams.html: Modify the third-party connector name to reflect the correct name as per Workato. This name will be available as the response of the `fetchTenant` function.
 2. Update Screenshots:
     app/index.html: Uncomment the img tags with the updated images.
 3. Update Solution articles:
