@@ -1,6 +1,6 @@
 {
   "name": "fs-connector",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "FS Connector Development Kit",
   "main": "index.js",
   "directories": {
