@@ -34,12 +34,6 @@
         },
         "stopRecipe": {
           "timeout": 10
-        },
-        "getFieldsData": {
-          "timeout": 10
-        },
-        "getEndpoints": {
-          "timeout": 10
         }
       },
       "events": {
