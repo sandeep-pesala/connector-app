@@ -123,7 +123,7 @@ input.error {
   margin-top: 12px;
 }
 
-#connect-sampleapp {
+#connect-sample-app {
   margin-left: auto;
 }
 .iframe-container {
@@ -142,7 +142,7 @@ iframe {
   color: #475867;
   font-size: 14px;
 }
-#sampleapp-connection-footer {
+#sample-app-connection-footer {
   width: 930px;
   display: inline-flex;
 }
