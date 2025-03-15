@@ -17,7 +17,6 @@
         "startRecipe": {},
         "stopRecipe": {},
         "updateConnection": {},
-        "triggerEndpoint": {},
         "fetchAlertConfig": {},
         "updateAlertConfig": {},
         "fetchAgents": {}
