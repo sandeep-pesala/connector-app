@@ -327,6 +327,7 @@
     try {
       var isConnectionsValid = await validateConnections();
       if(!isConnectionsValid) {
+        notify('Please click "Next" before install or save.', 'error');
         return false;
       }
 
