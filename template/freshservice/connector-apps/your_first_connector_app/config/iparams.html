@@ -14,7 +14,7 @@
   <fw-tabs id="app-tabs">
     <div id="configure-tabs">
       <fw-tab slot="tab" panel="connect-fs" active-tab-index="0" id="connect-fs-tab">1. Connect Freshservice</fw-tab>
-      <fw-tab slot="tab" panel="connect-wk" active-tab-index="1" id="connect-sampleapp-tab" disabled>2. Connect sampleapp</fw-tab>
+      <fw-tab slot="tab" panel="connect-wk" active-tab-index="1" id="connect-sample-app-tab" disabled>2. Connect sampleapp</fw-tab>
       <fw-tab slot="tab" panel="alert-conf" active-tab-index="2" id="alert-conf-tab" disabled>3. Alerts</fw-tab>
     </div>
     <fw-tab-panel name="connect-fs">
@@ -23,12 +23,12 @@
           <form id="create-tenant-form">
             <div class="field fw-mb-12">
               <label for="fs_domain">Domain URL<span>*</span></label>
-              <input type="text" name="fs_domain" class="fs_domain" id="fs_domain" placeholder="Enter your Freshervice Domain URL" data-bind="product.domain" required/>
+              <input type="text" name="fs_domain" class="fs_domain" id="fs_domain" placeholder="Enter your Freshervice Domain URL" data-bind="product.domain" disabled/>
               <p class="hint-text">Example: https://acme.freshservice.com</p>
             </div>
             <div class="field">
               <label for="fs-apikey">API Key<span>*</span></label>
-              <input type="password" name="fs_apikey" class="fs-apikey" id="fs-apikey" placeholder="Enter your API key" required/>
+              <input type="password" name="fs_apikey" class="fs-apikey" id="fs-apikey" placeholder="Enter your API key" data-bind="product.api_key" disabled/>
               <p class="hint-text">Click the profile icon on top right corner of your screen. Go to Profile Settings and access your API key.</p>
             </div>
             <div id="create-tenant">
@@ -39,7 +39,7 @@
             </div>
             <p class="loading-hint hide">Please wait while the connection is being established.</p>
             <p class="connection-error error-info hide">Please enter valid domain and API-key</p>
-            <p class="feature-error error-info hide"></p>
+            <p class="feature-error error-info hide">sampleapp Connector is part of Connector Apps. To install, kindly upgrade your Freshservice billing plan to Pro or Enterprise.</p>
           </form>
         </div>
       </div>
@@ -54,12 +54,12 @@
         <!-- TODO: Update the article -->
         <div class="iframe-info fw-mb-16 iframe-info">Please refer to the <a href="https://support.freshservice.com/en/support/solutions/articles/" rel="noopener noreferrer" class="button-link auth-article-link" target="_blank">article</a> for information necessary to authenticate your connection.</div>
         <div class="iframe-container">
-          <iframe id='created-sampleapp' width="900" src = "" height="900"></iframe>
+          <iframe id='created-sample-app' width="900" src = "" height="900"></iframe>
         </div>
       </div>
       
-      <div id="sampleapp-connection-footer" class="fw-mt-24">
-        <fw-button color="primary" class="button-alignment" id="sampleapp-next"> Next </fw-button>
+      <div id="sample-app-connection-footer" class="fw-mt-24">
+        <fw-button color="primary" class="button-alignment" id="sample-app-next"> Next </fw-button>
       </div>
     </fw-tab-panel>
 
@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <div id="sampleapp-connection-footer" class="fw-mt-24">
+        <div id="sample-app-connection-footer" class="fw-mt-24">
           <fw-inline-message open type="info" closable="false" id="install-info">
             <div class="connection-success-info">Click <span class="fw-type-semibold">Install</span> below to complete the installation.</div>
           </fw-inline-message>
@@ -203,6 +203,11 @@
           $('.loading-hint').removeClass('hide');
           $('.connection-error, .feature-error').addClass('hide');
           authInfo = formData;
+
+          domain = $('#fs_domain').val();
+          authInfo['fs_apikey'] = $('#fs-apikey').val();;
+          authInfo['fs_domain'] = domain.replace("https://", "");
+
           try {
             // create tenant
             await initCreation(authInfo);
@@ -222,8 +227,17 @@
             console.error(error);
             jQuery('.loading-hint, #tenant-loading').addClass('hide');
             if(error.status == 403) {
-              jQuery('.feature-error, #create-tenant').removeClass('hide');
-              jQuery('.feature-error').text(JSON.parse(error.response).message);
+              let errorResponse = {};
+              try {
+                errorResponse = JSON.parse(error.response);
+              } catch (e) {
+                console.error("Error parsing response", e);
+              }
+              if (errorResponse?.code === 'access_denied') {
+                jQuery('.connection-error, #create-tenant').removeClass('hide');
+              } else {
+                jQuery('.feature-error, #create-tenant').removeClass('hide');
+              }
             } else {
               jQuery('.connection-error, #create-tenant').removeClass('hide');
             }
@@ -235,7 +249,7 @@
     try {
       var tenantInfo = await fetchTenant(authInfo);
       var response = JSON.parse(tenantInfo.response);
-      var connection = response.connections.find(function(connection){ return connection.provider.includes('sampleapp') }); // TODO: this should be the name of the connector app in workato side.
+      var connection = response.connections.find(function(connection){ return connection.provider.includes('sample_app') }); // TODO: this should be the name of the connector app in workato side.
       var connectId = connection.id;
       isConnected = connection.authorization_status == 'success';
       ls.isFsValid = true;
@@ -251,7 +265,7 @@
       $('#create-tenant, #tenant-loading').toggleClass('hide');
       $('#data-center-info').toggleClass('hide', isEUorUSPod);
       switchTab(1);
-      jQuery('#created-sampleapp').attr('src', response.base_url+'direct_link/embedded/connections/'+connectId+'?workato_dl_token='+response.token);
+      jQuery('#created-sample-app').attr('src', response.base_url+'direct_link/embedded/connections/'+connectId+'?workato_dl_token='+response.token);
       updateFsConnection(response.connections);
     } catch(error) {
       if(count >= 5){
@@ -293,7 +307,7 @@
       var connectionInfo = await getConnections(ls);
       var connections = JSON.parse(connectionInfo.response);
       var isFsConnected = getFSConnection(connections)[0].authorization_status == 'success';
-      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sampleapp') }).authorization_status == 'success'; // TODO: this should be the name of the connector app in workato side.
+      var isSampleAppConnected = connections.find(function(connection){ return connection.provider.includes('sample_app') }).authorization_status == 'success'; // TODO: this should be the name of the connector app in workato side.
 
       setAlertRecipeConnParams(connections);
       return isFsConnected && isSampleAppConnected;
@@ -312,12 +326,11 @@
     })
   }
 
-
-
   async function validate() {
     try {
       var isConnectionsValid = await validateConnections();
       if(!isConnectionsValid) {
+        notify('Please click "Next" before install or save.', 'error');
         return false;
       }
 
@@ -375,12 +388,12 @@
   function init() {
       $('#validate').on("click", checkValidation);
 
-      $("#sampleapp-next").on('click', async function() {
+      $("#sample-app-next").on('click', async function() {
         var isConnectionsValid = await validateConnections();
         if(isConnectionsValid) {
           activateAlertsPage();
         } else {
-          notify('Connect SampleApp to proceed.', 'error');
+          notify('Connect sampleapp to proceed.', 'error');
         }
       });
   }

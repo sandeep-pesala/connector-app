@@ -17,7 +17,6 @@
         "startRecipe": {},
         "stopRecipe": {},
         "updateConnection": {},
-        "triggerEndpoint": {},
         "fetchAlertConfig": {},
         "updateAlertConfig": {},
         "fetchAgents": {}
@@ -33,12 +32,6 @@
           "timeout": 10
         },
         "stopRecipe": {
-          "timeout": 10
-        },
-        "getFieldsData": {
-          "timeout": 10
-        },
-        "getEndpoints": {
           "timeout": 10
         }
       },

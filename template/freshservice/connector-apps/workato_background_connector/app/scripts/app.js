@@ -60,15 +60,6 @@ function handleErr(err = 'None') {
   });
 }
 
-// this will get and store the endpoints
-async function storeEndpoints() {
-  try {
-    await client.request.invoke("fetchEndpoints", {context: {}});
-  } catch(error) {
-    handleErr(error);
-  }
-}
-
 function handleRecipesStateChange($targerBtn, showStartOrStop, btnData) {
   $targerBtn
   .addClass('hide')

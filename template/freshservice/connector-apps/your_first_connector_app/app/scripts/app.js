@@ -169,7 +169,7 @@ function bindEvents() {
     }
   });
 
-  jQuery(document).on('click.sampleapp', '.start-recipe, .stop-recipe', function(e){
+  jQuery(document).on('click.sampleApp', '.start-recipe, .stop-recipe', function(e){
     const btnData = e.target.dataset;
     const showStartOrStop = btnData.key === 'start' ? 'stop' : 'start';
     const requestData = jQuery.extend({}, appIparams, {id: btnData.id});
@@ -191,16 +191,16 @@ function bindEvents() {
     );
   });
 
-  jQuery(document).on('click.sampleapp', '.show-iframe', function(e) {
+  jQuery(document).on('click.sampleApp', '.show-iframe', function(e) {
     handleTenantCrud(jQuery(e.target).data());
   });
 
-  jQuery('fw-toggle').on('fwChange.sampleapp', function(e) {
+  jQuery('fw-toggle').on('fwChange.sampleApp', function(e) {
     e.stopPropagation();
     handleWidgetPreview(e.detail.checked);
   });
 
-  jQuery(document).on('click.sampleapp', '.widget-toggle-btn', function(e) {
+  jQuery(document).on('click.sampleApp', '.widget-toggle-btn', function(e) {
     if(jQuery(e.target).hasClass('disabled')) {
       jQuery('#widget-remove-confirm-modal').click();
     } else {
@@ -208,12 +208,12 @@ function bindEvents() {
     }
   });
 
-  jQuery(document).on('click.sampleapp', '#turn-off-widget', function() {
+  jQuery(document).on('click.sampleApp', '#turn-off-widget', function() {
     jQuery('.widget-toggle-btn fw-toggle').click();
     saveWidgetData(false);
   });
 
-  jQuery(document).on('click.sampleapp', '#save-fields', function() {
+  jQuery(document).on('click.sampleApp', '#save-fields', function() {
     const selectedFields = [];
     jQuery('#entity-fields-list').find('fw-checkbox[checked]').each(function(){
       const selectedField = $(this).data('value');
@@ -248,7 +248,7 @@ function bindEvents() {
     )
   });
 
-  jQuery(document).on('click.sampleapp', '#reset-fields', function() {
+  jQuery(document).on('click.sampleApp', '#reset-fields', function() {
     const fields = jQuery("#entity-fields-list fw-checkbox");
     fields.each(function(index, chkBox) {
         const $field = jQuery(chkBox);
@@ -297,7 +297,7 @@ function setKebabMenu(i, recipe, showLog) {
   }
   const standardVariant = jQuery('#standard-kebab-menu-'+i);
   standardVariant[0].options = standardDataSource;
-  standardVariant.off('fwSelect.sampleapp').on('fwSelect.sampleapp', function(e) {
+  standardVariant.off('fwSelect.sampleApp').on('fwSelect.sampleApp', function(e) {
     handleTenantCrud(e.detail.value);
   });
 }

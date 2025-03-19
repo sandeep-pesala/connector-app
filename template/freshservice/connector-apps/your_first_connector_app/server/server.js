@@ -61,7 +61,8 @@ exports = {
     try {
       const response = await $request.invokeTemplate("fetchEndpoints");
       const apiDetails = JSON.parse(response.response);
-      const data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sampleapp_data_fetch') }).base_path;
+      // TODO: Use the appropriate value for base path of Widget API in below statement
+      const data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sample_app_data_fetch') }).base_path;
       const field_secret = apiDetails.profile[0].secret;
       await $db.set('endpointDetails', {'data_fetch_url': data_fetch_url, 'field_secret': encodeData({ secret: field_secret })});
       renderData(null,  response);
@@ -87,11 +88,18 @@ exports = {
         field_secret: decodeData(endpoints.field_secret).secret,
         base_url: baseUrl
       }
-      if(options.user_id) {
-        Object.assign(requestData, {query_params: 'user_id=' + options.user_id + '&email='+ options.email});
+      if(options.freshserviceId) {
+        Object.assign(requestData, {query_params: 'freshserviceId=' + options.freshserviceId});
       }
       const fieldsData = await $request.invokeTemplate("triggerEndpoint",{ context: requestData});
       const userData = JSON.parse(fieldsData.response);
+
+      if (options.meta) {
+        // Handle meta option: Return keys only
+        renderData(null, Object.keys(userData));
+        return;
+      }
+
       let entityFields = {};
       try {
         entityFields = await $db.get('entity_fields');
@@ -100,7 +108,7 @@ exports = {
       }
       const response = {};
       entityFields.fields_list?.forEach(function(field){
-        response[field[1]] = userData[field[0]] || '';
+        response[field[1]] = userData[field[1]] || '';
       });
       renderData(null, response);
     } catch (err) {

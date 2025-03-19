@@ -10,6 +10,9 @@ Congratulations on creating your first Workato App! Feel free to replace this te
 3. Update Solution articles:
     config/iparams.html: Modify the solution article link.
     app/index.html: Modify the solution article link.
+4. Use the appropriate base path for widget API url
+    server/server.js: Use the appropriate base path for finding widget API url and assigning `data_fetch_url` in `fetchEndpoints` function.
+
 
 All the steps to be done, are added as todos comments in the files.
 

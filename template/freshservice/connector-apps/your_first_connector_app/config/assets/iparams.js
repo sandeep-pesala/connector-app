@@ -1,6 +1,6 @@
 // API Methods
 
-const appName = 'SampleApp'
+const appName = 'sampleapp'
 
 var getJwtToken = function(authInfo) {
   return client.request.invokeTemplate("fetchToken", { context: {

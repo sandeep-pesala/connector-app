@@ -125,7 +125,7 @@
 		"schema": {
 			"method": "GET",
 			"protocol": "https",
-			"host": "apim.workato.com",
+			"host": "<%= context.base_url %>",
 			"path": "<%= context.path %>?<%= context.query_params %>",
 			"headers": {
 				"API-Token": "<%= context.field_secret %>",
