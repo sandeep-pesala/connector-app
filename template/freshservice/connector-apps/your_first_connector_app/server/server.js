@@ -8,11 +8,11 @@ const workatoDomainMapping = {
 
 const defaultWorkatoDomain = 'apim.workato.com';
 
-function encodeData(data) {
+function encodeData(data, secretKey) {
   return jwt.sign(data, secretKey);
 }
 
-function decodeData(data) {
+function decodeData(data, secretKey) {
   return jwt.verify(data, secretKey);
 }
 
@@ -64,7 +64,9 @@ exports = {
       // TODO: Use the appropriate value for base path of Widget API in below statement
       const data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sample_app_data_fetch') }).base_path;
       const field_secret = apiDetails.profile[0].secret;
-      await $db.set('endpointDetails', {'data_fetch_url': data_fetch_url, 'field_secret': encodeData({ secret: field_secret })});
+
+      const appSettings = await $db.get('appSettings');
+      await $db.set('endpointDetails', {'data_fetch_url': data_fetch_url, 'field_secret': encodeData({ secret: field_secret }, appSettings.server_secret)});
       renderData(null,  response);
     } catch (err) {
       renderData(err);
@@ -83,9 +85,10 @@ exports = {
       const endpoints = await $db.get('endpointDetails');
       const podDetails = await $db.get('podDetails');
       const baseUrl = workatoDomainMapping[podDetails.region] || defaultWorkatoDomain;
+      const appSettings = await $db.get('appSettings');
       const requestData = {
         path: endpoints.data_fetch_url,
-        field_secret: decodeData(endpoints.field_secret).secret,
+        field_secret: decodeData(endpoints.field_secret, appSettings.server_secret).secret,
         base_url: baseUrl
       }
       if(options.freshserviceId) {
@@ -123,6 +126,7 @@ exports = {
         body: JSON.stringify({folder_id: args.iparams.folder_id})
       });
       $db.set('podDetails', { region: args.region });
+      $db.set('appSettings', args.app_settings);
       console.log('after configureEndpoints called');
     } catch (err) {
       console.log('onAppInstallCallback Error');
@@ -158,5 +162,9 @@ exports = {
         console.log(error)
         renderData();
       });
+  },
+  onSettingsUpdate: function (args) {
+    console.log('onSettingsUpdate invoked with following data: \n', args);
+    renderData();
   }
 }
