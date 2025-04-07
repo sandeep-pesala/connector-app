@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const secretKey = 'dummy_token_to_be_replaced';
 
 const workatoDomainMapping = {
   AUS: 'apim.au.workato.com',
