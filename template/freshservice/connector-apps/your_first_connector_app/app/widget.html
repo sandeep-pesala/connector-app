@@ -12,7 +12,7 @@
     <div id="widget-content">
       <fw-spinner size="medium" id="details-loader"></fw-spinner>
       <div id="fields-info-container" class="hide">
-        <p class="fields-header">Requester details</p>
+        <p class="fields-header">Ticket details</p>
         <ul id="fields-list"></ul>
       </div>
       <div id="lost-connection" class="widget-error hide">
@@ -23,9 +23,13 @@
         <img src="./assets/images/widget-disabled.svg" alt="widget disabled"/>
         <p id="wd-disabled-info">The widget has not been configured by your admin.</p>
       </div>
-      <div id="requester-not-found" class="widget-error fw-mt-12 hide">
+      <div id="ticket-not-found" class="widget-error fw-mt-12 hide">
         <img src="./assets/images/empty_data.svg" alt="empty data"/>
-        <p>Requester details is not available in sampleapp</p>
+        <p>Ticket details is not available in sampleapp</p>
+      </div>
+      <div id="fields-not-configured" class="widget-error fw-mt-12 hide">
+        <img src="./assets/images/empty_data.svg" alt="empty data"/>
+        <p>The widget has no fields configured at the moment</p>
       </div>
     </div>
     <script src="scripts/widget.js"></script>

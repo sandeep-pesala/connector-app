@@ -51,9 +51,9 @@ jQuery('#details-loader').addClass('hide');
 
 function getFieldInfo() {
 // show the required field data.
-client.data.get("requester").then (
-    function(requester_data) {
-      client.request.invoke('getFieldsData', { user_id: requester_data.requester.id, email: requester_data.requester.email })
+client.data.get("ticket").then (
+    function(ticketData) {
+      client.request.invoke('getFieldsData', { freshserviceId: ticketData.ticket.display_id })
       .then(
         function(resData) {
           const entityFields = resData.response;
@@ -65,7 +65,7 @@ client.data.get("requester").then (
         },
         function(error){
           if(error.status === 404) {
-            jQuery('#requester-not-found').removeClass('hide');
+            jQuery('#ticket-not-found').removeClass('hide');
             handleWidgetError();
           } else {
             handleErr(error);

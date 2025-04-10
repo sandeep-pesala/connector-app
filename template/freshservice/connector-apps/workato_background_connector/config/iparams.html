@@ -14,7 +14,7 @@
   <fw-tabs id="app-tabs">
     <div id="configure-tabs">
       <fw-tab slot="tab" panel="connect-fs" active-tab-index="0" id="connect-fs-tab">1. Connect Freshservice</fw-tab>
-      <fw-tab slot="tab" panel="connect-wk" active-tab-index="1" id="connect-sampleapp-tab" disabled>2. Connect sampleapp</fw-tab>
+      <fw-tab slot="tab" panel="connect-wk" active-tab-index="1" id="connect-sample-app-tab" disabled>2. Connect sampleapp</fw-tab>
       <fw-tab slot="tab" panel="alert-conf" active-tab-index="2" id="alert-conf-tab" disabled>3. Alerts</fw-tab>
     </div>
     <fw-tab-panel name="connect-fs">
@@ -23,12 +23,12 @@
           <form id="create-tenant-form">
             <div class="field fw-mb-12">
               <label for="fs_domain">Domain URL<span>*</span></label>
-              <input type="text" name="fs_domain" class="fs_domain" id="fs_domain" placeholder="Enter your Freshervice Domain URL" data-bind="product.domain" required/>
+              <input type="text" name="fs_domain" class="fs_domain" id="fs_domain" placeholder="Enter your Freshervice Domain URL" data-bind="product.domain" disabled/>
               <p class="hint-text">Example: https://acme.freshservice.com</p>
             </div>
             <div class="field">
               <label for="fs-apikey">API Key<span>*</span></label>
-              <input type="password" name="fs_apikey" class="fs-apikey" id="fs-apikey" placeholder="Enter your API key" required/>
+              <input type="password" name="fs_apikey" class="fs-apikey" id="fs-apikey" placeholder="Enter your API key" data-bind="product.api_key" disabled/>
               <p class="hint-text">Click the profile icon on top right corner of your screen. Go to Profile Settings and access your API key.</p>
             </div>
             <div id="create-tenant">
@@ -52,12 +52,12 @@
           Note: This App will securely process your data via <a href="https://support.freshservice.com/en/support/solutions/articles/50000006196" rel="noreferrer noopener" target="_blank">Data Centers in the US</a>
         </fw-inline-message>
         <div class="iframe-container">
-          <iframe id='created-sampleApp' width="900" src = "" height="900"></iframe>
+          <iframe id='created-sample-app' width="900" src = "" height="900"></iframe>
         </div>
       </div>
       
-      <div id="sampleApp-connection-footer" class="fw-mt-24">
-        <fw-button color="primary" class="button-alignment" id="sampleapp-next"> Next </fw-button>
+      <div id="sample-app-connection-footer" class="fw-mt-24">
+        <fw-button color="primary" class="button-alignment" id="sample-app-next"> Next </fw-button>
       </div>
     </fw-tab-panel>
 
@@ -90,7 +90,7 @@
             </fw-select>
           </div>
         </div>
-        <div id="sampleApp-connection-footer" class="fw-mt-24">
+        <div id="sample-app-connection-footer" class="fw-mt-24">
           <fw-inline-message open type="info" closable="false" id="install-info">
             <div class="connection-success-info">Click <span class="fw-type-semibold">Install</span> below to complete the installation.</div>
           </fw-inline-message>
@@ -134,8 +134,8 @@
     authInfo = authInfoData;
     ls.fs_apikey = savedConfigs.api_key;
     ls.fs_domain = savedConfigs.url;
-    ls.client_id = savedConfigs.SampleAppUrl;
-    ls.client_secret = savedConfigs.SampleAppApiKey;
+    ls.client_id = savedConfigs.sampleAppUrl;
+    ls.client_secret = savedConfigs.sampleAppApiKey;
     ls.storedConfiguration = savedConfigs;
     window.savedConfigs = savedConfigs;
     isAppInstalled = true;
@@ -200,6 +200,11 @@
           $('.loading-hint').removeClass('hide');
           $('.connection-error, .feature-error').addClass('hide');
           authInfo = formData;
+
+          domain = $('#fs_domain').val();
+          authInfo['fs_apikey'] = $('#fs-apikey').val();;
+          authInfo['fs_domain'] = domain.replace("https://", "");
+
           try {
             // create tenant
             await initCreation(authInfo);
@@ -219,8 +224,17 @@
             console.error(error);
             jQuery('.loading-hint, #tenant-loading').addClass('hide');
             if(error.status == 403) {
-              jQuery('.feature-error, #create-tenant').removeClass('hide');
-              jQuery('.feature-error').text(JSON.parse(error.response).message);
+              let errorResponse = {};
+              try {
+                errorResponse = JSON.parse(error.response);
+              } catch (e) {
+                console.error("Error parsing response", e);
+              }
+              if (errorResponse?.code === 'access_denied') {
+                jQuery('.connection-error, #create-tenant').removeClass('hide');
+              } else {
+                jQuery('.feature-error, #create-tenant').removeClass('hide');
+              } 
             } else {
               jQuery('.connection-error, #create-tenant').removeClass('hide');
             }
@@ -248,7 +262,7 @@
       $('#create-tenant, #tenant-loading').toggleClass('hide');
       $('#data-center-info').toggleClass('hide', isEUorUSPod);
       switchTab(1);
-      jQuery('#created-sampleapp').attr('src', response.base_url+'direct_link/embedded/connections/'+connectId+'?workato_dl_token='+response.token);
+      jQuery('#created-sample-app').attr('src', response.base_url+'direct_link/embedded/connections/'+connectId+'?workato_dl_token='+response.token);
       updateFsConnection(response.connections);
     } catch(error) {
       if(count >= 5){
@@ -313,6 +327,7 @@
     try {
       var isConnectionsValid = await validateConnections();
       if(!isConnectionsValid) {
+        notify('Please click "Next" before install or save.', 'error');
         return false;
       }
 
@@ -368,12 +383,12 @@
   function init() {
       $('#validate').on("click", checkValidation);
 
-      $("#sampleapp-next").on('click', async function() {
+      $("#sample-app-next").on('click', async function() {
         var isConnectionsValid = await validateConnections();
         if(isConnectionsValid) {
           activateAlertsPage();
         } else {
-          notify('Connect SampleApp to proceed.', 'error');
+          notify('Connect sampleapp to proceed.', 'error');
         }
       });
   }
@@ -404,6 +419,49 @@
     }
     
     loadAlertConfPage();
+  }
+
+  function loadAlertConfPage() {
+    $('#alert-conf-loader').hide();
+    $('#alert-conf-content').show();
+
+    jQuery('#alerts-toggle').prop('checked', alertPref);
+    jQuery('#email-select').toggle(alertPref);
+
+    jQuery('#alerts-toggle').off('fwChange');
+    jQuery('#alerts-toggle').on('fwChange', (event) => {
+      alertPref = event.currentTarget.checked;
+      jQuery('#email-select').toggle(event.currentTarget.checked);
+    })
+
+    const emailSelect = document.getElementById('email-select');
+    emailSelect.addEventListener('fwChange', (event) => {
+      emailSelect.state = 'normal';
+      emailSelect.errorText = '';
+    });
+    if(notifiedAgents.length > 0) {
+      emailSelect.selectedOptions = notifiedAgents.map(agent => {
+        return {
+          value: agent.id,
+          text: `${agent.first_name} ${agent.last_name}`,
+          subText: agent.email
+        }
+      });
+    }
+    emailSelect.search = (value, source) => {
+      return fetchAgents(authInfo, value).then((data) => {
+        return JSON.parse(data.response).agents.map(agent => {
+          return {
+            value: agent.id,
+            text: `${agent.first_name} ${agent.last_name}`,
+            subText: agent.email
+          }
+        });
+      }, (error) => {
+        notify('Agents fetch failed.', 'error');
+        console.log(error)
+      })
+    }
   }
 </script>
 

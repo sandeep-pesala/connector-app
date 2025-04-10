@@ -97,19 +97,7 @@
             }
         }
     },
-    "triggerEndpoint": {
-        "schema": {
-            "method": "GET",
-            "protocol": "https",
-            "host": "apim.workato.com",
-            "path": "<%= context.path %>?<%= context.query_params %>",
-            "headers": {
-                "API-Token": "<%= context.field_secret %>",
-                "Content-Type": "application/json"
-            }
-        }
-    },
-  "fetchAlertConfig": {
+    "fetchAlertConfig": {
 		"schema": {
 			"method": "GET",
 			"protocol": "https",
@@ -122,7 +110,7 @@
 			}
 		}
 	},
-	"updateAlertConfig": {
+    "updateAlertConfig": {
 		"schema": {
 			"method": "PUT",
 			"protocol": "https",
@@ -135,7 +123,7 @@
 			}
 		}
 	},
-	"fetchAgents": {
+    "fetchAgents": {
 		"schema": {
 			"method": "GET",
 			"protocol": "https",

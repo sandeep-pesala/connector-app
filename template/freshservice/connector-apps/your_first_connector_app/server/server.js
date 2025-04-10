@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const secretKey = 'dummy_token_to_be_replaced';
 
 const workatoDomainMapping = {
   AUS: 'apim.au.workato.com',
@@ -8,11 +7,11 @@ const workatoDomainMapping = {
 
 const defaultWorkatoDomain = 'apim.workato.com';
 
-function encodeData(data) {
+function encodeData(data, secretKey) {
   return jwt.sign(data, secretKey);
 }
 
-function decodeData(data) {
+function decodeData(data, secretKey) {
   return jwt.verify(data, secretKey);
 }
 
@@ -61,9 +60,12 @@ exports = {
     try {
       const response = await $request.invokeTemplate("fetchEndpoints");
       const apiDetails = JSON.parse(response.response);
-      const data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sampleapp_data_fetch') }).base_path;
+      // TODO: Use the appropriate value for base path of Widget API in below statement
+      const data_fetch_url = apiDetails.endpoints.find(function(endpoint){ return endpoint.base_path.includes('sample_app_data_fetch') }).base_path;
       const field_secret = apiDetails.profile[0].secret;
-      await $db.set('endpointDetails', {'data_fetch_url': data_fetch_url, 'field_secret': encodeData({ secret: field_secret })});
+
+      const appSettings = await $db.get('appSettings');
+      await $db.set('endpointDetails', {'data_fetch_url': data_fetch_url, 'field_secret': encodeData({ secret: field_secret }, appSettings.server_secret)});
       renderData(null,  response);
     } catch (err) {
       renderData(err);
@@ -82,16 +84,24 @@ exports = {
       const endpoints = await $db.get('endpointDetails');
       const podDetails = await $db.get('podDetails');
       const baseUrl = workatoDomainMapping[podDetails.region] || defaultWorkatoDomain;
+      const appSettings = await $db.get('appSettings');
       const requestData = {
         path: endpoints.data_fetch_url,
-        field_secret: decodeData(endpoints.field_secret).secret,
+        field_secret: decodeData(endpoints.field_secret, appSettings.server_secret).secret,
         base_url: baseUrl
       }
-      if(options.user_id) {
-        Object.assign(requestData, {query_params: 'user_id=' + options.user_id + '&email='+ options.email});
+      if(options.freshserviceId) {
+        Object.assign(requestData, {query_params: 'freshserviceId=' + options.freshserviceId});
       }
       const fieldsData = await $request.invokeTemplate("triggerEndpoint",{ context: requestData});
       const userData = JSON.parse(fieldsData.response);
+
+      if (options.meta) {
+        // Handle meta option: Return keys only
+        renderData(null, Object.keys(userData));
+        return;
+      }
+
       let entityFields = {};
       try {
         entityFields = await $db.get('entity_fields');
@@ -100,7 +110,7 @@ exports = {
       }
       const response = {};
       entityFields.fields_list?.forEach(function(field){
-        response[field[1]] = userData[field[0]] || '';
+        response[field[1]] = userData[field[1]] || '';
       });
       renderData(null, response);
     } catch (err) {
@@ -115,6 +125,7 @@ exports = {
         body: JSON.stringify({folder_id: args.iparams.folder_id})
       });
       $db.set('podDetails', { region: args.region });
+      $db.set('appSettings', args.app_settings);
       console.log('after configureEndpoints called');
     } catch (err) {
       console.log('onAppInstallCallback Error');
@@ -150,5 +161,9 @@ exports = {
         console.log(error)
         renderData();
       });
+  },
+  onSettingsUpdate: function (args) {
+    console.log('onSettingsUpdate invoked with following data: \n', args);
+    renderData();
   }
 }

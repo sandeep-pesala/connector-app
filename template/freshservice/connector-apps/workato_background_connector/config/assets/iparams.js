@@ -11,7 +11,7 @@ var initCreation = function(authInfo) {
   return client.request.invokeTemplate("initTenantCreation", { context: {
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
-      app_name: "sampleApp"
+      app_name: "sampleapp"
   }});
 }
 
@@ -19,7 +19,7 @@ var fetchTenant = function (authInfo) {
   return client.request.invokeTemplate("fetchTenant", { context: {
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
-      app_name: "sampleApp"
+      app_name: "sampleapp"
   }});
 }
 
@@ -44,7 +44,7 @@ var fetchAlertConfig = function (authInfo) {
   return client.request.invokeTemplate('fetchAlertConfig', { context: {
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
-      app_name: appName
+      app_name: "sampleapp"
   }});
 }
 
@@ -52,7 +52,7 @@ var updateAlertConfig = function (authInfo, alertConf, alertRecipeConnParams) {
   return client.request.invokeTemplate('updateAlertConfig', { context: {
       api_key: authInfo.fs_apikey,
       domain: authInfo.fs_domain,
-      app_name: appName
+      app_name: "sampleapp"
   },
   body: JSON.stringify({ 
       ...alertConf,
